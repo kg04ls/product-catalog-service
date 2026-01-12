@@ -6,5 +6,5 @@ type OutboxRepo interface {
 		eventType string,
 		aggregateID string,
 		payload []byte,
-	) any
+	) Mutation
 }
