@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"time"
 
 	"cloud.google.com/go/spanner"
@@ -24,7 +24,7 @@ func (r *OutboxRepo) InsertMut(eventID, eventType, aggregateID string, payload [
 		m_outbox.EventID:     eventID,
 		m_outbox.EventType:   eventType,
 		m_outbox.AggregateID: aggregateID,
-		m_outbox.Payload:     spanner.NullJSON{Value: json.RawMessage(payload), Valid: true},
+		m_outbox.Payload:     spanner.NullJSON{Value: string(payload), Valid: true},
 		m_outbox.Status:      "NEW",
 		m_outbox.CreatedAt:   time.Now().UTC(),
 	}
