@@ -147,14 +147,9 @@ func (r *SpannerReadModel) mapRowToDTO(row *spanner.Row) (contracts.ProductDTO, 
 	if discPercent.Valid && discStart.Valid && discEnd.Valid {
 		now := r.clock.Now().UTC()
 		if now.After(discStart.Time) && now.Before(discEnd.Time) {
-			// Calculate effective price
-			// base * (1 - discount/100)
-			// base * (100 - discount) / 100
-
 			pct := new(big.Rat).Set(&discPercent.Numeric)
 			base := big.NewRat(baseNum, baseDen)
 
-			// effective = base * (1 - pct/100)
 			one := big.NewRat(1, 1)
 			hundred := big.NewRat(100, 1)
 			pctRatio := new(big.Rat).Quo(pct, hundred)
