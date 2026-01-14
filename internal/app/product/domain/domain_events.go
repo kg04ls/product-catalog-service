@@ -61,3 +61,12 @@ type DiscountRemovedEvent struct {
 func (e DiscountRemovedEvent) EventType() string     { return "discount.removed" }
 func (e DiscountRemovedEvent) AggregateID() string   { return e.ProductID }
 func (e DiscountRemovedEvent) OccurredAt() time.Time { return e.At }
+
+type ProductArchivedEvent struct {
+	ProductID string
+	At        time.Time
+}
+
+func (e ProductArchivedEvent) EventType() string     { return "product.archived" }
+func (e ProductArchivedEvent) AggregateID() string   { return e.ProductID }
+func (e ProductArchivedEvent) OccurredAt() time.Time { return e.At }

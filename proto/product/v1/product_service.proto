@@ -104,3 +104,5 @@ message ProductInfo {
   string category = 3;
   string status = 4;
 }
+
+

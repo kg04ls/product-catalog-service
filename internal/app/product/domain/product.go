@@ -19,6 +19,7 @@ type Product struct {
 	basePrice   *Money
 	discount    *Discount
 	status      ProductStatus
+	archivedAt  *time.Time
 
 	changes *ChangeTracker
 	events  []DomainEvent
@@ -62,6 +63,7 @@ func HydrateProduct(
 	basePrice *Money,
 	discount *Discount,
 	status ProductStatus,
+	archivedAt *time.Time,
 ) *Product {
 	return &Product{
 		id:          id,
@@ -71,6 +73,7 @@ func HydrateProduct(
 		basePrice:   basePrice,
 		discount:    discount,
 		status:      status,
+		archivedAt:  archivedAt,
 		changes:     NewChangeTracker(),
 	}
 }
@@ -82,6 +85,7 @@ func (p *Product) Category() string        { return p.category }
 func (p *Product) BasePrice() *Money       { return p.basePrice }
 func (p *Product) Discount() *Discount     { return p.discount }
 func (p *Product) Status() ProductStatus   { return p.status }
+func (p *Product) ArchivedAt() *time.Time  { return p.archivedAt }
 func (p *Product) Changes() *ChangeTracker { return p.changes }
 
 func (p *Product) DomainEvents() []DomainEvent {
@@ -179,5 +183,18 @@ func (p *Product) RemoveDiscount(now time.Time) error {
 	p.changes.MarkDirty(FieldDiscount)
 	t := now.UTC()
 	p.events = append(p.events, DiscountRemovedEvent{ProductID: p.id, At: t})
+	return nil
+}
+
+func (p *Product) Archive(now time.Time) error {
+	if p.archivedAt != nil {
+		return nil
+	}
+	t := now.UTC()
+	p.archivedAt = &t
+	p.status = ProductStatusInactive
+	p.changes.MarkDirty(FieldArchivedAt)
+	p.changes.MarkDirty(FieldStatus)
+	p.events = append(p.events, ProductArchivedEvent{ProductID: p.id, At: t})
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"math/big"
+	"time"
 
 	"cloud.google.com/go/spanner"
 	"google.golang.org/api/iterator"
@@ -36,7 +37,7 @@ func (r *ProductRepo) GetByID(ctx context.Context, id string) (*domain.Product, 
 		SELECT product_id, name, description, category,
 		       base_price_numerator, base_price_denominator,
 		       discount_percent, discount_start_date, discount_end_date,
-		       status
+		       status, archived_at
 		FROM products
 		WHERE product_id = @id
 	`)
@@ -65,15 +66,15 @@ func (r *ProductRepo) GetByID(ctx context.Context, id string) (*domain.Product, 
 		discPercent spanner.NullNumeric
 		discStart   spanner.NullTime
 		discEnd     spanner.NullTime
-
-		statusStr string
+		statusStr   string
+		archivedAt  spanner.NullTime
 	)
 
 	if err := row.Columns(
 		&productID, &name, &desc, &category,
 		&baseNum, &baseDen,
 		&discPercent, &discStart, &discEnd,
-		&statusStr,
+		&statusStr, &archivedAt,
 	); err != nil {
 		return nil, err
 	}
@@ -104,6 +105,7 @@ func (r *ProductRepo) GetByID(ctx context.Context, id string) (*domain.Product, 
 		base,
 		discount,
 		status,
+		nullTime(archivedAt),
 	)
 
 	return p, nil
@@ -122,6 +124,7 @@ func (r *ProductRepo) InsertMut(p *domain.Product) contracts.Mutation {
 		m_product.Status:               string(p.Status()),
 		m_product.CreatedAt:            now,
 		m_product.UpdatedAt:            now,
+		m_product.ArchivedAt:           spanner.NullTime{Valid: false},
 	}
 
 	if d := p.Discount(); d != nil {
@@ -163,6 +166,13 @@ func (r *ProductRepo) UpdateMut(p *domain.Product) contracts.Mutation {
 			updates[m_product.DiscountEndDate] = spanner.NullTime{Valid: false}
 		}
 	}
+	if ch.Dirty(domain.FieldArchivedAt) {
+		if t := p.ArchivedAt(); t != nil {
+			updates[m_product.ArchivedAt] = *t
+		} else {
+			updates[m_product.ArchivedAt] = spanner.NullTime{Valid: false}
+		}
+	}
 
 	if len(updates) == 1 {
 		return nil
@@ -177,6 +187,13 @@ func nullString(s spanner.NullString) string {
 		return s.StringVal
 	}
 	return ""
+}
+
+func nullTime(t spanner.NullTime) *time.Time {
+	if t.Valid {
+		return &t.Time
+	}
+	return nil
 }
 
 func parseStatus(s string) domain.ProductStatus {

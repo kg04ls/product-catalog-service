@@ -6,4 +6,5 @@ const (
 	FieldCategory    = "category"
 	FieldStatus      = "status"
 	FieldDiscount    = "discount"
+	FieldArchivedAt  = "archived_at"
 )
