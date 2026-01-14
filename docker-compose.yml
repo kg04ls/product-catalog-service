@@ -1,0 +1,28 @@
+services:
+  spanner:
+    image: gcr.io/cloud-spanner-emulator/emulator:latest
+    ports:
+      - "9010:9010"
+      - "9020:9020"
+
+  spanner-init:
+    image: google/cloud-sdk:latest
+    depends_on:
+      - spanner
+    volumes:
+      - ./migrations:/migrations:ro
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        sleep 3
+        gcloud config configurations create emulator || true
+        gcloud config configurations activate emulator
+        gcloud config set project test-project
+        gcloud config set auth/disable_credentials true
+        gcloud config set api_endpoint_overrides/spanner http://spanner:9020/
+
+        gcloud spanner instances create test-instance --config=emulator-config --description=test --nodes=1 || true
+        gcloud spanner databases create test-db --instance=test-instance || true
+        gcloud spanner databases ddl update test-db --instance=test-instance --ddl-file=/migrations/001_initial_schema.sql
