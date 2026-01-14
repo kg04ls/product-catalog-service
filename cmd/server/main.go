@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"time"
 
 	"cloud.google.com/go/spanner"
 	"google.golang.org/grpc"
@@ -23,13 +22,10 @@ import (
 	"product-catalog-service/internal/app/product/usecases/remove_discount"
 	"product-catalog-service/internal/app/product/usecases/update_product"
 	"product-catalog-service/internal/infra/spannerx"
+	"product-catalog-service/internal/pkg/clock"
 	"product-catalog-service/internal/pkg/committer"
 	pb "product-catalog-service/proto/product/v1"
 )
-
-type clk struct{}
-
-func (clk) Now() time.Time { return time.Now() }
 
 type comm struct{ c *spanner.Client }
 
@@ -58,8 +54,8 @@ func main() {
 	}
 	defer c.Close()
 
-	ck, cm := clk{}, &comm{c}
-	pr, or := repo.NewProductRepo(c, ck), repo.NewOutboxRepo()
+	ck, cm := clock.System{}, &comm{c}
+	pr, or := repo.NewProductRepo(c, ck), repo.NewOutboxRepo(ck)
 	rm := repo.NewSpannerReadModel(c, ck)
 
 	h := product.NewHandler(
