@@ -25,6 +25,8 @@ import (
 	"product-catalog-service/internal/pkg/clock"
 	"product-catalog-service/internal/pkg/committer"
 	pb "product-catalog-service/proto/product/v1"
+
+	"github.com/joho/godotenv"
 )
 
 type comm struct{ c *spanner.Client }
@@ -43,6 +45,7 @@ func (s *comm) Apply(ctx context.Context, p *committer.Plan) error {
 }
 
 func main() {
+	_ = godotenv.Load()
 	p, i, d := os.Getenv("SPANNER_PROJECT_ID"), os.Getenv("SPANNER_INSTANCE_ID"), os.Getenv("SPANNER_DATABASE_ID")
 	if p == "" || i == "" || d == "" {
 		log.Fatal("Env vars missing")
