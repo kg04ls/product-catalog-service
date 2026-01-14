@@ -23,6 +23,7 @@ services:
         gcloud config set auth/disable_credentials true
         gcloud config set api_endpoint_overrides/spanner http://spanner:9020/
 
+        gcloud spanner databases delete test-db --instance=test-instance -q || true
         gcloud spanner instances create test-instance --config=emulator-config --description=test --nodes=1 || true
         gcloud spanner databases create test-db --instance=test-instance || true
         gcloud spanner databases ddl update test-db --instance=test-instance --ddl-file=/migrations/001_initial_schema.sql
