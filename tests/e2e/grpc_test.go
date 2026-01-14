@@ -34,7 +34,7 @@ func TestGRPC_CreateProduct(t *testing.T) {
 	clk := &testClock{now: time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)}
 	comm := &spannerCommitter{client: client}
 	productRepo := repo.NewProductRepo(client, clk)
-	outboxRepo := repo.NewOutboxRepo()
+	outboxRepo := repo.NewOutboxRepo(clk)
 
 	createUC := create_product.New(productRepo, outboxRepo, comm, clk)
 	updateUC := update_product.New(productRepo, outboxRepo, comm, clk)

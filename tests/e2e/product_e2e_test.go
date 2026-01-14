@@ -74,7 +74,7 @@ func TestProductCreationFlow(t *testing.T) {
 	clk := &testClock{now: time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)}
 	comm := &spannerCommitter{client: client}
 	productRepo := repo.NewProductRepo(client, clk)
-	outboxRepo := repo.NewOutboxRepo()
+	outboxRepo := repo.NewOutboxRepo(clk)
 
 	// Usecase
 	uc := create_product.New(productRepo, outboxRepo, comm, clk)
@@ -121,7 +121,7 @@ func TestDiscountApplicationFlow(t *testing.T) {
 	clk := &testClock{now: time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)}
 	comm := &spannerCommitter{client: client}
 	productRepo := repo.NewProductRepo(client, clk)
-	outboxRepo := repo.NewOutboxRepo()
+	outboxRepo := repo.NewOutboxRepo(clk)
 
 	createUc := create_product.New(productRepo, outboxRepo, comm, clk)
 	discountUc := apply_discount.New(productRepo, outboxRepo, comm, clk)
@@ -201,7 +201,7 @@ func TestProductActivationDeactivation(t *testing.T) {
 	clk := &testClock{now: time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)}
 	comm := &spannerCommitter{client: client}
 	productRepo := repo.NewProductRepo(client, clk)
-	outboxRepo := repo.NewOutboxRepo()
+	outboxRepo := repo.NewOutboxRepo(clk)
 
 	createUc := create_product.New(productRepo, outboxRepo, comm, clk)
 	activateUc := activate_product.New(productRepo, outboxRepo, comm, clk)
@@ -244,7 +244,7 @@ func TestBusinessRuleValidation(t *testing.T) {
 	clk := &testClock{now: time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)}
 	comm := &spannerCommitter{client: client}
 	productRepo := repo.NewProductRepo(client, clk)
-	outboxRepo := repo.NewOutboxRepo()
+	outboxRepo := repo.NewOutboxRepo(clk)
 
 	createUc := create_product.New(productRepo, outboxRepo, comm, clk)
 	discountUc := apply_discount.New(productRepo, outboxRepo, comm, clk)
