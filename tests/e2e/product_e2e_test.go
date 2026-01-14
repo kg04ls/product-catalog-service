@@ -153,13 +153,11 @@ func TestDiscountApplicationFlow(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// 4. Verify
 	p, err := productRepo.GetByID(ctx, productID)
 	require.NoError(t, err)
 
-	// Check discount is present on the domain entity
 	require.NotNil(t, p.Discount())
-	assert.Equal(t, "1/2", p.Discount().Percent().String()) // 50/100 simplifies to 1/2
+	assert.Equal(t, "1/2", p.Discount().Percent().String())
 }
 
 // Helper to query outbox events
