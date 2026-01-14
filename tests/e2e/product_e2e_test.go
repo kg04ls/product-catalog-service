@@ -231,8 +231,15 @@ func TestProductActivationDeactivation(t *testing.T) {
 
 	// Verify activation event was created
 	events := getOutboxEvents(ctx, t, client, productID)
-	require.Len(t, events, 2) // created + activated
-	assert.Equal(t, "product.activated", events[1].EventType)
+	require.Len(t, events, 2)
+
+	types := make([]string, 0, len(events))
+	for _, e := range events {
+		types = append(types, e.EventType)
+	}
+
+	assert.Contains(t, types, "product.created")
+	assert.Contains(t, types, "product.activated")
 }
 
 func TestBusinessRuleValidation(t *testing.T) {
