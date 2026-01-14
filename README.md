@@ -20,7 +20,7 @@ Built using **Clean Architecture / DDD / CQRS** and **Google Spanner Emulator**.
 
 ## Requirements
 
-	- Go 1.21+
+- Go 1.21+
 - Docker and docker-compose
 - gcloud CLI
 
